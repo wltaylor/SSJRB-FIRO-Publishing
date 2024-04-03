@@ -8,7 +8,7 @@ Files supporting the manuscript 'Variability, attributes, and drivers of optimal
 #### Data preparation (optional):
 * Network components are defined in `data/nodes.json`
 * Historical data can be updated to the current day from [CDEC](https://cdec.water.ca.gov/).
-* CNRFC HEFS forecasts are downloaded for all regions, extracted for these sites, out to a 14-day lead time, located in the linked folder: [Box](https://ucdavis.box.com/s/hj1q0o8xhqrr6dyhxyreqwrkqzhupfbw). HEFS from other time periods are available at [CNRFC](https://www.cnrfc.noaa.gov/)
+* CNRFC HEFS forecasts are downloaded for all regions, extracted for these sites, out to a 14-day lead time, located in the linked folder: [Box](https://ucdavis.box.com/s/hj1q0o8xhqrr6dyhxyreqwrkqzhupfbw). HEFS from other time periods are available at [CNRFC](https://www.cnrfc.noaa.gov/).
 
 #### Fit parameters (optional): `fit_historical.py`
 * Fits values for reservoir policies, gains, and delta pumping over the historical period. Saved in `data/params.json`.
