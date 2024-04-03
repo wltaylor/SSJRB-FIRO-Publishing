@@ -50,40 +50,23 @@ for i,k in enumerate(rk):
       print(R[:,i].max())
       params_temp[k][4] = original_tocs * (tm - 0.001) # revert to previous value, did not exceed
 
-    
-    # if exceeds safe release, or if it's the last value (never exceeded)
-    # if R[:,i].max() > max_release[i]:
-    #   params_temp[k][4] = original_tocs * (tm - 0.001) # revert to previous value, did not exceed
-    #   #params_temp[k][4] = original_tocs * (tm) # revert to previous value, did not exceed
-
       break      
 
     
 
   print('TOCS Multiplier = %0.4f' % (tm - 0.001))
   tocs_multipliers[i] = (tm - 0.001)
-  #print('TOCS Multiplier = %0.2f' % (tm))
-  #tocs_multipliers[i] = (tm)
 
 # once all multipliers found, run one more time to find the objective function
 # note this does not change the original params.json values
 params_in = tuple(np.array(v) for k,v in params_temp.items())
 R,S,Delta,tocs = model.simulate(params_in, Kr, Kp, *input_data, max_release, ramping_rate)
 obj = model.objective(R,S,Delta,Kr, max_release)
-print('Total Objective Function = ', obj) # -0.535
-# if FIRO is -0.55 that's good
-
-# check if Rmax > safe release for any of them (should not be)
-for i,k in enumerate(rk):
-  if R[:,i].max() > max_release[i]:
-    print(k, ': Rmax exceeds safe release')
+print('Total Objective Function = ', obj)
 
 # save storage and release values for outside analysis
 np.savetxt("data/optimized_baseline_release.csv", R, delimiter=",")
 np.savetxt("data/optimized_baseline_storage.csv", S, delimiter=",")
 np.savetxt("data/optimized_baseline_params.csv", tocs_multipliers, delimiter=",")
 
-#%%
-plt.plot(R[:,13])
-plt.show()
 
