@@ -23,6 +23,8 @@ from matplotlib import cm
 import matplotlib.colors as colors
 from matplotlib.cm import ScalarMappable
 from util import *
+from labellines import labelLines
+
 
 
 
@@ -184,13 +186,13 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 ax1.plot([0, 5, 14], [0, 0, 50], color='black')  # piecewise linear curve
 
 ax1.annotate('', # left arrowhead
-             xy=(4.5, 2), 
+             xy=(4.7, 2), 
              xytext=(0.5, 2),
              arrowprops=dict(facecolor='black', width=1, headwidth=8),
              horizontalalignment='center', 
              color='black')
 ax1.annotate('', # right arrowhead
-             xy=(0.5, 2), 
+             xy=(0.3, 2), 
              xytext=(4.5, 2),
              arrowprops=dict(facecolor='black', width=1, headwidth=8),
              horizontalalignment='center', 
@@ -233,13 +235,13 @@ ax2.text(0.45, 0.15, 'Dead pool', horizontalalignment='center', verticalalignmen
 
 # Draw arrow for X3
 ax2.annotate('', # left arrowhead
-             xy=(0.1, 0.65), 
+             xy=(0.1, 0.63), 
              xytext=(0.1, 0.95),
              arrowprops=dict(facecolor='black', width=1, headwidth=8),
              horizontalalignment='center', 
              color='black')
 ax2.annotate('', # right arrowhead
-             xy=(0.1, 0.95), 
+             xy=(0.1, 0.97), 
              xytext=(0.1, 0.65),
              arrowprops=dict(facecolor='black', width=1, headwidth=8),
              horizontalalignment='center', 
@@ -1151,3 +1153,85 @@ plt.subplots_adjust(hspace=0.2)
 
 plt.savefig('Fig10.tif', format='tif', bbox_inches='tight', dpi=300)
 plt.show()
+
+#%% Supplemental Figures 1-10: Parameters and Risk Curves by Random Seed
+
+names = ['SHA','ORO','BUL','FOL','PAR','NHG','NML','DNP','EXC','MIL','PNF','TRM','SCC','ISB']
+
+for seed in range(0,10):
+    file_name = f"data/params_{seed}.csv"
+    params = pd.read_csv(file_name, header=None)     
+    params.insert(0, "Reservoir", names)
+    color_variable = params.iloc[:,3]
+    cmap = plt.cm.get_cmap('viridis')  # Choose a colormap
+    norm = plt.Normalize(vmin=min(color_variable), vmax=max(color_variable))
+    
+    # Create the figure and a GridSpec layout
+    plt.rcParams['figure.figsize'] = [14, 7]
+    fig = plt.figure(tight_layout=True)
+    gs1 = gridspec.GridSpec(1, 1, left = 0.05, right = 0.48)
+    
+    ax1 = fig.add_subplot(gs1[0])
+    sm = ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    
+    xvals = [12, #SHA
+             10, #ORO
+             8, #BUL
+             12, #FOL
+             11, #PAR
+             12, #NHG
+             8, #NML
+             12, #DNP
+             11, #EXC
+             10, #MIL
+             11, #PNF
+             12, #TRM
+             12, #SCC
+             12]#ISB
+    # locations for labels
+    
+    # Draw the second plot now on the shared axes
+    for k in range(14):  
+        piecewise = np.zeros(14)
+        for i in range(len(piecewise)):
+            if i < params.iloc[k,1]:
+                piecewise[i] = 0
+            else:
+                piecewise[i] = (i - np.round(params.iloc[k,1]))*params.iloc[k,2]*100
+        ax1.plot(piecewise, c=cmap(norm(color_variable[k])), label = names[k])
+        labelLines(plt.gca().get_lines(), xvals=xvals, zorder=2.5, color='black')
+    
+    cbar = fig.colorbar(sm, ax=ax1)
+    cbar.set_label('TOCS multiplier')
+    ax1.set_xlabel('Lead day')
+    ax1.set_ylabel('Risk percent (%)')
+    ax1.set_xlim(0,13)
+    ax1.set_title('(a)')
+    
+    gs2 = gridspec.GridSpec(3,1, left = 0.56, right = 0.98, hspace = 0.45)
+    
+    # First subplot
+    ax0 = fig.add_subplot(gs2[0, 0])
+    ax0.scatter(params.iloc[:,0], params.iloc[:,1], color = 'g')
+    ax0.set_title('(b)')
+    ax0.set_ylim(0,10)
+    ax0.set_ylabel('Days With No Risk')
+    
+    # Second subplot
+    ax1 = fig.add_subplot(gs2[1, 0])
+    ax1.scatter(params.iloc[:,0], params.iloc[:,2], color = 'g')
+    ax1.set_ylim(0,0.1)
+    ax1.set_ylabel('Slope of Risk Curve')
+    ax1.set_title('(c)')
+    
+    # Third subplot
+    ax2 = fig.add_subplot(gs2[2, 0])
+    ax2.scatter(params.iloc[:,0], params.iloc[:,3], color = 'g')
+    ax2.set_ylim(1.0,2.0)
+    ax2.set_ylabel('TOCS Multiplier')
+    ax2.set_title('(d)')
+    
+    plt.savefig(f"S_Fig_{seed}.tif", format='tif', bbox_inches='tight', dpi=300)
+    plt.show()
+
